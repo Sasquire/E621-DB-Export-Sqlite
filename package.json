@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "axios": "^0.21.4",
+    "better-sqlite3": "^7.4.3",
+    "pako": "^2.0.4",
+    "papaparse": "^5.3.1"
+  }
+}
