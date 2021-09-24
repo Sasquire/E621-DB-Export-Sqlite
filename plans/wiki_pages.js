@@ -1,7 +1,7 @@
 const E621ExportType = require('./../utils/export_type.js');
 
 const schema = `
-create table if not exists wiki_pages (
+create table wiki_pages (
 	wiki_id integer primary key on conflict fail,
 	created_at integer not null,
 	updated_at integer not null,

@@ -1,7 +1,7 @@
 const E621ExportType = require('./../utils/export_type.js');
 
 const schema = `
-create table if not exists tag_aliases (
+create table tag_aliases (
 	alias_id integer primary key on conflict fail,
 	tag text not null,
 	main_tag text not null,

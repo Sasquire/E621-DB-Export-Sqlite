@@ -6,11 +6,7 @@ const axios = require('axios');
 const pako = require('pako');
 const papa = require('papaparse');
 
-const now = new Date();
-const year = now.getFullYear().toString().padStart(4, '0');
-const month = (now.getMonth() + 1).toString().padStart(2, '0');
-const day = now.getDate().toString().padStart(2, '0');
-const today = `${year}-${month}-${day}`;
+const today = require('./utils.js').get_today();
 
 class E621ExportType {
 	constructor(name, schema, get_prepared_statements, insert_row) {

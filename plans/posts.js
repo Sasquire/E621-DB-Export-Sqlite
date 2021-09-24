@@ -1,7 +1,7 @@
 const E621ExportType = require('./../utils/export_type.js');
 
 const schema = `
-create table if not exists posts_metadata (
+create table posts_metadata (
 	post_id integer primary key,
 	change_seq integer unique on conflict fail,
 	updated_at integer not null,
@@ -35,19 +35,19 @@ create table if not exists posts_metadata (
 	down_score integer not null
 );
 
-create table if not exists posts_sources (
+create table posts_sources (
 	post_id integer not null,
 	source text not null,
 	constraint posts_sources_references_posts_metadata foreign key (post_id) references posts_metadata
 );
 
-create table if not exists posts_tags (
+create table posts_tags (
 	post_id integer not null,
 	tag text not null,
 	constraint posts_tags_references_posts_metadata foreign key (post_id) references posts_metadata
 );
 
-create table if not exists posts_locked_tags (
+create table posts_locked_tags (
 	post_id integer not null,
 	tag text not null,
 	constraint posts_tags_references_posts_metadata foreign key (post_id) references posts_metadata

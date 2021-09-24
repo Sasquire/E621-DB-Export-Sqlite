@@ -2,7 +2,7 @@ const E621ExportType = require('./../utils/export_type.js');
 const { parse_potentially_empty_date } = require('./../utils/utils.js');
 
 const schema = `
-create table if not exists tag_implications (
+create table tag_implications (
 	implication_id integer primary key on conflict fail,
 	tag text not null,
 	implied_tag text not null,

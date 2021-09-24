@@ -1,7 +1,7 @@
 const E621ExportType = require('./../utils/export_type.js');
 
 const schema = `
-create table if not exists pools_metadata (
+create table pools_metadata (
 	pool_id integer primary key on conflict fail,
 	pool_name text not null,
 	created_at integer not null,
@@ -12,7 +12,7 @@ create table if not exists pools_metadata (
 	category text not null
 );
 
-create table if not exists pools (
+create table pools (
 	post_id integer not null,
 	pool_id integer not null,
 	constraint pools_references_pools_metadata foreign key (pool_id) references pools_metadata

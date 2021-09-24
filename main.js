@@ -1,15 +1,16 @@
 const Database = require('better-sqlite3');
+const today = require('./utils/utils.js').get_today();
 
-const database_name = 'e621.database.sqlite3';
+const database_name = `e621.${today}.database.sqlite3`;
 const db = new Database(database_name);
 
 const data_types = [
-	require('./plans/posts.js'),
-	require('./plans/pools.js'),
-	require('./plans/tag_aliases.js'),
-	require('./plans/tag_implications.js'),
-	require('./plans/tags.js'),
-	require('./plans/wiki_pages.js')
+//	require('./plans/posts.js'),
+//	require('./plans/pools.js'),
+//	require('./plans/tag_aliases.js'),
+//	require('./plans/tag_implications.js'),
+//	require('./plans/tags.js'),
+//	require('./plans/wiki_pages.js')
 ];
 
 async function main () {
