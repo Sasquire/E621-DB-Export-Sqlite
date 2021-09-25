@@ -8,7 +8,9 @@ function parse_potentially_empty_date (date) {
 }
 
 function get_today () {
-	const now = new Date();
+	// now is yesterday because we don't know when the site runs the
+	// db_export functionality. This should be the safest option.
+	const now = new Date(new Date().getTime() - 24 * 60 * 60 * 1000)
 	const year = now.getFullYear().toString().padStart(4, '0');
 	const month = (now.getMonth() + 1).toString().padStart(2, '0');
 	const day = now.getDate().toString().padStart(2, '0');
