@@ -13,7 +13,6 @@ e.g. To only download `post` and `tag` information
 ```javascript
 const data_types = [
     require('./plans/posts.js'),
-	
 //  require('./plans/pools.js'),
 //  require('./plans/tag_aliases.js'),
 //  require('./plans/tag_implications.js'),
@@ -51,30 +50,30 @@ Either method should create a file called `e621.database.sqlite3`. This is the d
 
 I have made some changes to the direct data export to make this database easier and more intuitive to understand.
 
-* general
- * Tags: Tags are in their own post_id-tag_name table. This feels more correct than a tag-string, but I could be proven wrong.
- * Dates, times, instants: All times are stored in [Unix time](https://en.wikipedia.org/wiki/Unix_time).
-* posts_metadata
- * `change_seq`: A unique identifier for any post in time. Changing anything about a post on e621 assigns it a new `change_seq` value.
- * `updated_at`: If the post has not been edited then this is set to `created_at`
- * `current_md5`: Replaces `md5` because the md5 of a post may change.
- * `approver_id`: If post did not have an approver, it was assumed it was auto-approved by the uploader.
- * `parent_id`: Nullable to improve ease-of-use.
- * `duration`: Represents playtime of post-video in seconds. Nullable to improve ease-of-use.
-* posts_sources
- * `source`: Not guaranteed to be a URL. Split the sources string by newlines.
-* tag_aliases
- * `created_at`: If was missing then is set to `2006-01-01`.
- * `tag`: Tag that is being aliased away (not the tag that is displayed). Called `antecedent_name` on e621.
- * `main_tag`: Tag that is being aliased to (the tag that is displayed everywhere). Called `consequent_name` on e621.
-* tag_implications
- * `tag`: Tag that implies another tag. Called `antecedent_name` on e621.
- * `implied_tag`: Tag that is implied. Called `consequent_name` on e621.
-* tags
- * `category`: Contains a [magic number](https://en.wikipedia.org/wiki/Magic_number_(programming)) referring to the tag category.
- * `count_on_active_posts`: Rename of `post_count` because `post_count` does not include deleted posts.
-* wiki_pages
- * `updater_id`: If the page has not been edited then this is set to `creator_id`.
+- general
+  - Tags: Tags are in their own post_id-tag_name table. This feels more correct than a tag-string, but I could be proven wrong.
+  - Dates, times, instants: All times are stored in [Unix time](https://en.wikipedia.org/wiki/Unix_time).
+- posts_metadata
+  - `change_seq`: A unique identifier for any post in time. Changing anything about a post on e621 assigns it a new `change_seq` value.
+  - `updated_at`: If the post has not been edited then this is set to `created_at`
+  - `current_md5`: Replaces `md5` because the md5 of a post may change.
+  - `approver_id`: If post did not have an approver, it was assumed it was auto-approved by the uploader.
+  - `parent_id`: Nullable to improve ease-of-use.
+  - `duration`: Represents playtime of post-video in seconds. Nullable to improve ease-of-use.
+- posts_sources
+  - `source`: Not guaranteed to be a URL. Split the sources string by newlines.
+- tag_aliases
+  - `created_at`: If was missing then is set to `2006-01-01`.
+  - `tag`: Tag that is being aliased away (not the tag that is displayed). Called `antecedent_name` on e621.
+  - `main_tag`: Tag that is being aliased to (the tag that is displayed everywhere). Called `consequent_name` on e621.
+- tag_implications
+  - `tag`: Tag that implies another tag. Called `antecedent_name` on e621.
+  - `implied_tag`: Tag that is implied. Called `consequent_name` on e621.
+- tags
+  - `category`: Contains a [magic number](https://en.wikipedia.org/wiki/Magic_number_(programming)) referring to the tag category.
+  - `count_on_active_posts`: Rename of `post_count` because `post_count` does not include deleted posts.
+- wiki_pages
+  - `updater_id`: If the page has not been edited then this is set to `creator_id`.
 
 ## Motivation
 

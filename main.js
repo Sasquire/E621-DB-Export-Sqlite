@@ -5,7 +5,6 @@ const db = new Database(database_name);
 
 const data_types = [
 	require('./plans/posts.js'),
-	
 	require('./plans/pools.js'),
 	require('./plans/tag_aliases.js'),
 	require('./plans/tag_implications.js'),
