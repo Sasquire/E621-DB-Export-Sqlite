@@ -1,5 +1,3 @@
-const E621ExportType = require('./../utils/export_type.js');
-
 const schema = `
 create table posts_metadata (
 	post_id integer primary key,
@@ -38,19 +36,21 @@ create table posts_metadata (
 create table posts_sources (
 	post_id integer not null,
 	source text not null,
-	constraint posts_sources_references_posts_metadata foreign key (post_id) references posts_metadata
+	constraint fk_posts_sources_references_posts_metadata_post_id foreign key (post_id) references posts_metadata
 );
 
 create table posts_tags (
 	post_id integer not null,
-	tag text not null,
-	constraint posts_tags_references_posts_metadata foreign key (post_id) references posts_metadata
+	tag_id integer not null,
+	constraint fk_posts_tags_references_posts_metadata_post_id foreign key (post_id) references posts_metadata
+	constraint fk_posts_tags_references_tags_tag_id foreign key (tag_id) references tags
 );
 
 create table posts_locked_tags (
 	post_id integer not null,
-	tag text not null,
-	constraint posts_tags_references_posts_metadata foreign key (post_id) references posts_metadata
+	tag_id integer not null,
+	constraint fk_posts_locked_tags_references_posts_metadata_post_id foreign key (post_id) references posts_metadata
+	constraint fk_posts_locked_tags_references_tags_tag_id foreign key (tag_id) references tags
 );
 `
 
@@ -125,12 +125,22 @@ function get_prepared_statements (database) {
 		`), database.prepare(`
 			insert into posts_sources (post_id, source) values (@post_id, @source);
 		`), database.prepare(`
-			insert into posts_tags (post_id, tag) values (@post_id, @tag);
+			insert into posts_tags (post_id, tag_id) select @post_id as post_id, tag_id from tags where name = @tag;
 		`), database.prepare(`
-			insert into posts_locked_tags (post_id, tag) values (@post_id, @locked_tag);
+			insert into posts_locked_tags (post_id, tag_id) select @post_id as post_id, tag_id from tags where name = @locked_tag;
 		`)
 	];
 }
+
+const indexes = `
+create index ix_posts_tags_post_id on posts_tags (post_id);
+create index ix_posts_tags_tag_id on posts_tags (tag_id);
+--Not actually making these indexes because it's probably(?) not worth it
+--The increased file size for very little gain. If it needs to be changed
+--later, sure. But I'll change it then not now
+--create index ix_posts_sources_post_id on posts_sources (post_id);
+--create index ix_posts_locked_tags_post_id on posts_tags (post_id);
+--create index ix_posts_locked_tags_tag_id on posts_tags (tag_id);`
 
 function insert_row(statements, row) {
 	const post_id = parseInt(row.id, 10);
@@ -193,4 +203,4 @@ function insert_row(statements, row) {
 		}));
 }
 
-module.exports = new E621ExportType('posts', schema, get_prepared_statements, insert_row)
+module.exports = { schema, get_prepared_statements, insert_row, indexes };

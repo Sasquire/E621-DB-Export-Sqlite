@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const stream = require('stream');
 
+const mkdirp = require('mkdirp');
+const ReadableStreamClone = require("readable-stream-clone");
 const axios = require('axios');
 const pako = require('pako');
 const papa = require('papaparse');
@@ -9,11 +11,8 @@ const papa = require('papaparse');
 const today = require('./utils.js').get_today();
 
 class E621ExportType {
-	constructor(name, schema, get_prepared_statements, insert_row) {
+	constructor(name) {
 		this.name = name;
-		this.schema = schema
-		this.insert_row = insert_row
-		this.get_prepared_statements = get_prepared_statements;
 	}
 
 	get url () {
@@ -21,25 +20,17 @@ class E621ExportType {
 	}
 
 	get path () {
-		return path.join('.', `${this.name}-${today}.csv.gz`);
+		return path.join('.', 'cache', `${this.name}-${today}.csv.gz`);
 	}
 
-	async download_csv (insert_rows_callback) {
+	get get_name () {
+		return this.name;
+	}
+
+	async download_csv (rows_callback) {
 		return download_blob(this)
 			.then(response => inflator_stream(response.data))
-			.then(readable_stream => parse_rows(readable_stream, insert_rows_callback));
-	}
-	
-	get_prepared_statements (database) {
-		return this.get_prepared_statements(database);
-	}
-
-	insert_row(statements, row) {
-		return this.insert_row(statements, row);
-	}
-
-	init(database) {
-		return database.exec(this.schema);
+			.then(readable_stream => parse_rows(readable_stream, rows_callback));
 	}
 }
 
@@ -54,7 +45,7 @@ function inflator_stream (input_stream) {
 	return output_stream;
 }
 
-function parse_rows (input_stream, insert_rows_callback) {
+function parse_rows (input_stream, rows_callback) {
 	const csv_options = {
 		delimiter: "",	// auto-detect
 		newline: "",	// auto-detect
@@ -84,19 +75,27 @@ function parse_rows (input_stream, insert_rows_callback) {
 	};
 
 	const row_buffer = [];
-	return new Promise(resolve => {
+	return new Promise((resolve, reject) => {
 		papa.parse(input_stream, {
 			...csv_options,
 			step: row => {
 				row_buffer.push(row.data);
 				if (row_buffer.length % 10000 === 0) {
-					insert_rows_callback(row_buffer)
-					row_buffer.length = 0;
+					try {
+						rows_callback(row_buffer)
+						row_buffer.length = 0;
+					} catch (e) {
+						reject(e);
+					}
 				}
 			},
 			complete: () => {
-				insert_rows_callback(row_buffer);
-				resolve()
+				try {
+					rows_callback(row_buffer)
+					resolve();
+				} catch (e) {
+					reject(e);
+				}
 			}
 		});
 	});
@@ -110,11 +109,20 @@ async function download_blob (type) {
 		}
 	} else {
 		console.log('No File found. Streaming data directly from website');
-		return axios({
+		const data_stream = await axios({
 			url: type.url,
 			method: 'GET',
 			responseType: 'stream'
 		});
+
+		await mkdirp(path.dirname(type.path));
+		const read_stream = new ReadableStreamClone(data_stream.data);
+		const write_stream = fs.createWriteStream(type.path);
+		read_stream.pipe(write_stream);
+		
+		return {
+			data: new ReadableStreamClone(data_stream.data)
+		}
 	}
 }
 

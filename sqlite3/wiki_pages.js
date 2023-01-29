@@ -1,5 +1,3 @@
-const E621ExportType = require('./../utils/export_type.js');
-
 const schema = `
 create table wiki_pages (
 	wiki_id integer primary key on conflict fail,
@@ -10,7 +8,9 @@ create table wiki_pages (
 	creator_id integer not null,
 	updater_id integer not null,
 	is_locked integer not null -- is a boolean
-);`
+);`;
+
+const indexes = ``;
 
 function get_prepared_statements (database) {
 	return [
@@ -51,4 +51,4 @@ function insert_row(statements, row) {
 	});
 }
 
-module.exports = new E621ExportType('wiki_pages', schema, get_prepared_statements, insert_row)
+module.exports = { schema, get_prepared_statements, insert_row, indexes };

@@ -1,35 +1,39 @@
-const Database = require('better-sqlite3');
+const args = require('args-parser')(process.argv);
+const E621ExportType = require('./utils/export_type');
 
-const database_name = `e621.database.sqlite3`;
-const db = new Database(database_name);
+// TODO come up with a requirement system for which order to do these
+// because sqlite3 requires tags to come before aliases and implications
+const to_process = [
+	'wiki_pages',
+	'tags',
+	'tag_aliases',
+	'tag_implications',
+	'posts',
+	'pools'
+];
 
-const data_types = [
-	require('./plans/posts.js'),
-	require('./plans/pools.js'),
-	require('./plans/tag_aliases.js'),
-	require('./plans/tag_implications.js'),
-	require('./plans/tags.js'),
-	require('./plans/wiki_pages.js')
+const plans = [
+	// require('./sqlite3/main.js'),
+	require('./roaring/main.js'),
 ];
 
 async function main () {
-	for (const type of data_types) {
-		console.log(`Initializing ${type.name} table(s)`);
-		type.init(db);
+	for (const plan of plans) {
+		plan.init();
+	}
 
-		console.log(`Downloading, parsing, and inserting ${type.url}`);
+	for (const process_type of to_process) {
+		plans.forEach(e => e.pre(process_type));
 
-		let counter = 0;
-		const statements = type.get_prepared_statements(db);
-		await type.download_csv(rows_to_insert => db.transaction(() => {
-			counter += rows_to_insert.length;
-			for (const row of rows_to_insert) {
-				type.insert_row(statements, row);
-			}
-			console.log(`${new Date().toISOString()}: Inserted ${counter} rows`);
-		})(rows_to_insert));
+		await new E621ExportType(process_type).download_csv((rows) => {
+			plans.forEach(e => e.work(process_type, rows));
+		}).catch(e => {throw e});
+		
+		plans.forEach(e => e.post(process_type));
+	}
 
-		console.log('')
+	for (const plan of plans) {
+		plan.terminate();
 	}
 }
 

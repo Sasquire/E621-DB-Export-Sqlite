@@ -18,7 +18,18 @@ function get_today () {
 	return today;
 }
 
+function file_exists (filename) {
+	try {
+		return fs.statSync(filename).isFile();
+	} catch (e) {
+		return false;
+	}
+}
+
 module.exports = {
 	parse_potentially_empty_date: parse_potentially_empty_date,
-	get_today: get_today
+	get_today: get_today,
+	file_exists: file_exists,
+	sqlite3_name: 'e621.sqlite3.database',
+	roaring_name: 'e621.roaring.database'
 }

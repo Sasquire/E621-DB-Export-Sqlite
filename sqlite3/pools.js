@@ -1,5 +1,3 @@
-const E621ExportType = require('./../utils/export_type.js');
-
 const schema = `
 create table pools_metadata (
 	pool_id integer primary key on conflict fail,
@@ -15,8 +13,16 @@ create table pools_metadata (
 create table pools (
 	post_id integer not null,
 	pool_id integer not null,
-	constraint pools_references_pools_metadata foreign key (pool_id) references pools_metadata
-);`
+	constraint fk_pools_references_pools_metadata_pool_id foreign key (pool_id) references pools_metadata
+
+	--Removed because apparently pools can have DESTROYED posts in them.
+	--I am going to have a fit.
+	--constraint fk_pools_references_posts_metadata_post_id foreign key (post_id) references posts_metadata
+);`;
+
+const indexes = `
+create index ix_pools_post_id on pools (post_id);
+create index ix_pools_pool_id on pools (pool_id);`
 
 function get_prepared_statements (database) {
 	return [
@@ -41,7 +47,7 @@ function get_prepared_statements (database) {
 				@category
 			);
 		`), database.prepare(`
-				insert into pools (post_id, pool_id) values (@post_id, @pool_id);
+			insert into pools (post_id, pool_id) values (@post_id, @pool_id);
 		`)
 	];
 }
@@ -70,4 +76,4 @@ function insert_row(statements, row) {
 		}));
 }
 
-module.exports = new E621ExportType('pools', schema, get_prepared_statements, insert_row)
+module.exports = { schema, get_prepared_statements, insert_row, indexes };

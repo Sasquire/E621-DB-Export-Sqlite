@@ -1,5 +1,3 @@
-const E621ExportType = require('./../utils/export_type.js');
-
 const schema = `
 create table tags (
 	tag_id integer primary key on conflict fail,
@@ -7,6 +5,11 @@ create table tags (
 	category text not null,
 	count_on_active_posts integer not null
 );`
+
+const indexes = `
+-- Not a unique index because some tags somehow got similar names
+create index ix_tags_name on tags (name);
+create index ix_tags_category on tags (category);`
 
 function get_prepared_statements (database) {
 	return [
@@ -35,4 +38,4 @@ function insert_row(statements, row) {
 	});
 }
 
-module.exports = new E621ExportType('tags', schema, get_prepared_statements, insert_row)
+module.exports = { schema, get_prepared_statements, insert_row, indexes };

@@ -4,43 +4,9 @@ This program takes the [e621 db_export](https://e621.net/db_export/) files and i
 
 ## How to use
 
-### Creating the database
+### TODO
 
-Edit `main.js` and comment out (`//`) any plans you do not want to run.
-
-e.g. To only download `post` and `tag` information 
-
-```javascript
-const data_types = [
-    require('./plans/posts.js'),
-//  require('./plans/pools.js'),
-//  require('./plans/tag_aliases.js'),
-//  require('./plans/tag_implications.js'),
-    require('./plans/tags.js'),
-//  require('./plans/wiki_pages.js')
-];
-```
-
-#### Command Line
-
-If you want to use pre-downloaded files, name them `<type>-<yyyy>-<mm>-<dd>.csv.gz` (where `<yyyy>-<mm>-<dd>` is yesterday's date and without `<` or `>`) and place them in the same directory you are invoking the script from. This is useful if you have an unstable internet connection or want to build the database multiple times for some reason.
-
-```bash
-npm install
-node main.js
-```
-
-#### Docker
-I have no idea how to use docker, but this is the command sequence I have used to build, run, and extract the relevant files.
-
-```bash
-cd /path/to/this/repository/
-docker build .     # returns an $image_id
-docker create $id  # returns a container_id
-docker start $container_id
-# Wait for $container_id to finish
-docker cp $container_id:/E621-DB-Export-Sqlite/e621.database.sqlite3 .
-```
+Roaring is currently super broke on my machine. But I had all the code, so I'm not going to waste it.
 
 ### After running
 
